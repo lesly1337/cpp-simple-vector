@@ -47,11 +47,12 @@ public:
         }
     }
     
-    SimpleVector(const SimpleVector& other) { // подсказал наставник
-        SimpleVector<Type> copy(other.GetSize());
-        std::copy((other.items_).Get(), ((other.items_).Get() + other.GetSize()), (copy.items_).Get());
-        copy.capacity_ = other.capacity_;
-        swap(copy);
+    SimpleVector(const SimpleVector& other) { //поправил
+        ArrayPtr<Type> copy(other.GetSize()); 
+        std::copy((other.items_).Get(), ((other.items_).Get() + other.GetSize()), copy.Get()); 
+        capacity_ = other.size_;
+        size_ = other.size_;
+        copy.swap(items_);
     }
 
     SimpleVector(SimpleVector&& other) { // Перемещением
@@ -96,14 +97,16 @@ public:
     }
 
     // Возвращает ссылку на элемент с индексом index
-    Type& operator[](size_t index) noexcept {
+    Type& operator[](size_t index) noexcept {//поправил
         // Напишите тело самостоятельно
+        assert(index <= size_);
         return items_[index];
     }
 
     // Возвращает константную ссылку на элемент с индексом index
-    const Type& operator[](size_t index) const noexcept {
+    const Type& operator[](size_t index) const noexcept {//поправил
         // Напишите тело самостоятельно
+        assert(index <= size_);
         return items_[index];
     }
 
@@ -139,20 +142,20 @@ public:
         // Напишите тело самостоятельно
         if ( new_size > capacity_ ) {
             ArrayPtr<Type> new_items(new_size);
-            for (auto it = new_items.Get(); it != new_items.Get() + new_size; ++it) {
+            for (auto it = new_items.Get() + size_; it != new_items.Get() + new_size; ++it) {
             *it = std::move(Type{});
         }
-            std::move(items_.Get(), items_.Get() + capacity_, new_items.Get());
+            std::move(items_.Get(), items_.Get() + size_, new_items.Get());
             items_.swap(new_items);
-            size_ = std::move(new_size);
-            capacity_ = std::move(new_size);
-        } else if ( new_size > size_ && new_size < capacity_ ) {
+            size_ = new_size;
+            capacity_ = new_size;
+        } else if ( new_size > size_ && new_size <= capacity_ ) { //Исправлен для new_size == capacity_
             for (auto it = items_.Get() + size_ ; it != items_.Get() + size_ + new_size; ++it) {
-            *it = std::move(Type{});
+            *it = std::move(Type());
         }
-            size_ = std::move(new_size);
+            size_ = new_size;
         } else {
-            size_ = std::move(new_size);
+            size_ = new_size;
         }
     }
 
@@ -289,17 +292,15 @@ public:
     }
 
     // "Удаляет" последний элемент вектора. Вектор не должен быть пустым
-    void PopBack() noexcept {
-        if (size_ != 0) {
-            size_ -= 1;
-        }
+    void PopBack() noexcept {//поправил
+        assert(size_ != 0);
+        size_ -= 1;
     }
 
     // Удаляет элемент вектора в указанной позиции
-    Iterator Erase(ConstIterator pos) { // Без copy
+    Iterator Erase(ConstIterator pos) {//поправил
         assert(pos >= items_.Get() && pos < items_.Get() + size_);
         size_t erase_position = pos - items_.Get(); // засовываем объекты, пропустив 1
-        std::move(items_.Get(), items_.Get() + erase_position, items_.Get());
         std::move(items_.Get() + erase_position + 1, items_.Get() + size_, items_.Get() + erase_position);
         --size_;
         return Iterator(items_.Get() + erase_position);
@@ -311,11 +312,10 @@ public:
         std::swap(other.size_, size_);
         std::swap(other.capacity_, capacity_);
     }
-    void Reserve(size_t new_capacity) {
+    void Reserve(size_t new_capacity) {//поправил
         if (new_capacity > capacity_) {
             ArrayPtr<Type> new_items(new_capacity);
-            std::fill(new_items.Get(), new_items.Get() + new_capacity, Type());
-            std::copy(items_.Get(), items_.Get() + size_, new_items.Get());
+            std::move(items_.Get(), items_.Get() + size_, new_items.Get());
             items_.swap(new_items);
             capacity_ = new_capacity;
         }

@@ -21,10 +21,22 @@ public:
     {
         // Реализуйте конструктор самостоятельно
     }
-
+    
     // Запрещаем копирование
     ArrayPtr(const ArrayPtr&) = delete;
-
+    
+    //Добавлен конструктор перемещения для move
+    ArrayPtr(ArrayPtr&& other) {
+        raw_ptr_ = std::exchange(other.raw_ptr_, nullptr);
+    }
+    
+    //Добавлен оператор перемещения для move
+    ArrayPtr& operator=(ArrayPtr&& rhs) {
+    	if (this != &rhs) {
+            raw_ptr_ = std::exchange(rhs.raw_ptr_, nullptr);
+        }
+    	return *this;
+    }
         
     ~ArrayPtr() {
         // Напишите деструктор самостоятельно
