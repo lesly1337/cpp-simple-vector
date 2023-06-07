@@ -99,14 +99,14 @@ public:
     // Возвращает ссылку на элемент с индексом index
     Type& operator[](size_t index) noexcept {//поправил
         // Напишите тело самостоятельно
-        assert(index <= size_);
+        assert(index < size_);//Исправил
         return items_[index];
     }
 
     // Возвращает константную ссылку на элемент с индексом index
     const Type& operator[](size_t index) const noexcept {//поправил
         // Напишите тело самостоятельно
-        assert(index <= size_);
+        assert(index < size_);//Исправил
         return items_[index];
     }
 
@@ -149,7 +149,7 @@ public:
             items_.swap(new_items);
             size_ = new_size;
             capacity_ = new_size;
-        } else if ( new_size > size_ && new_size <= capacity_ ) { //Исправлен для new_size == capacity_
+        } else if ( new_size > size_) { //Исправил
             for (auto it = items_.Get() + size_ ; it != items_.Get() + size_ + new_size; ++it) {
             *it = std::move(Type());
         }
@@ -292,7 +292,7 @@ public:
     }
 
     // "Удаляет" последний элемент вектора. Вектор не должен быть пустым
-    void PopBack() noexcept {//поправил
+    void PopBack() noexcept {
         assert(size_ != 0);
         size_ -= 1;
     }

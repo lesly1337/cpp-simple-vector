@@ -33,7 +33,7 @@ public:
     //Добавлен оператор перемещения для move
     ArrayPtr& operator=(ArrayPtr&& rhs) {
     	if (this != &rhs) {
-            raw_ptr_ = std::exchange(rhs.raw_ptr_, nullptr);
+            swap(rhs.raw_ptr_);
         }
     	return *this;
     }
